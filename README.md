@@ -1,40 +1,108 @@
-# Users Management — Spring Boot, Arquitectura Hexagonal y DDD
+# Users Management & Fincas — Spring Boot, Arquitectura Hexagonal y DDD
 
-Aplicación de gestión de usuarios construida con Java 17 y Spring Boot. La API REST es el punto de entrada activo. El código de la antigua CLI se conserva como adaptador inactivo y no posee un contenedor de dependencias independiente.
+Microservicio empresarial construido con **Java 17** y **Spring Boot 3**, aplicando los principios de **Diseño Guiado por el Dominio (DDD)**, **Arquitectura Hexagonal (Ports & Adapters)** y **CQRS (Segregación de Comandos y Consultas)**.
 
-Spring es el único *composition root*: `Main` inicia el contexto y las dependencias se resuelven mediante configuración y component scanning de Spring.
+El sistema gestiona de forma integral dos módulos articulados pero desacoplados:
+1. **Módulo de Usuarios:** Gestión de identidad, autenticación JWT, autorización por roles y notificaciones.
+2. **Módulo de Fincas (Ejercicio N.º 4):** Ciclo de vida completo (CRUDL) para predios agropecuarios con 12 atributos de negocio e integridad espacial.
 
-## Verificación
+---
 
-`GET /health` es publico y responde HTTP 200 con los metadatos generados desde
-`pom.xml` durante el build:
+## 🏛️ Arquitectura del Sistema
 
-```json
-{"status":"UP","name":"users-management","version":"2.2.0"}
+La solución se construye estrictamente **desde el dominio hacia afuera**, garantizando la inversión de dependencias:
+
+```
+src/main/java/com/jcaa/usersmanagement/
+├── domain/                               # NÚCLEO: Lógica pura de negocio (Cero dependencias)
+│   ├── model/                            # UserModel, FincaModel (Aggregate Roots inmutables)
+│   ├── valueobject/                      # FincaId, FincaNombre, FincaSuperficie, FincaPersonal...
+│   ├── event/                            # FincaCreatedDomainEvent, FincaUpdatedDomainEvent...
+│   ├── exception/                        # FincaNotFoundException, InvalidFincaDataException...
+│   └── enums/                            # UserRole, UserStatus
+├── application/                          # CASOS DE USO Y CONTRATOS
+│   ├── port/in/                          # CreateFincaUseCase, GetFincaByIdUseCase, GetAll...
+│   ├── port/out/                         # SaveFincaPort, GetFincaByIdPort, DeleteFincaPort...
+│   ├── service/                          # CreateFincaService, UpdateFincaService, GetAll...
+│   ├── service/dto/command/              # CreateFincaCommand, UpdateFincaCommand, Delete...
+│   ├── service/dto/query/                # GetFincaByIdQuery
+│   └── service/mapper/                   # FincaApplicationMapper
+└── infrastructure/                       # TECNOLOGÍA Y ADAPTADORES EXTERNOS
+    ├── adapter/persistence/              # FincaRepositoryMySQL (JDBC DataSource PreparedStatement)
+    │   ├── entity/                       # FincaEntity
+    │   ├── dto/                          # FincaPersistenceDto
+    │   └── mapper/                       # FincaPersistenceMapper
+    ├── entrypoint/rest/                  # FincaRestController, FincaRestControllerDocs (Swagger)
+    │   ├── dto/request/                  # CreateFincaRestRequest, UpdateFincaRestRequest
+    │   ├── dto/response/                 # FincaRestResponse
+    │   └── mapper/                       # FincaRestMapper
+    └── security/                         # SecurityConfig, JWT Filter y autorización
 ```
 
-Indica que la API responde; no comprueba MySQL ni el proveedor de correo.
+---
 
+## 🌾 Módulo de Fincas (Ejercicio N.º 4)
+
+El módulo modela las propiedades agrícolas a través de doce (12) atributos de negocio protegidos por **Value Objects**:
+
+| Atributo | Tipo | Descripción | Validación / Regla |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID (String) | Identificador único del predio | No vacío, formato válido |
+| `nombre` | String | Denominación legal de la finca | Entre 3 y 100 caracteres |
+| `numHectareas` | Double | Extensión superficial en hectáreas | Estrictamente positivo (> 0) |
+| `metrosCuadrados`| Double | Área en metros cuadrados | Autocalculado (`numHectareas * 10,000`) |
+| `propietario` | String | Nombre del titular legal | No vacío, mín. 3 caracteres |
+| `capataz` | String | Encargado o administrador operativo| No vacío, mín. 3 caracteres |
+| `pais` | String | País de radicación geográfica | Por defecto 'Colombia' |
+| `departamento` | String | División administrativa departamental | No vacío |
+| `ciudad` | String | Municipio o jurisdicción | No vacío |
+| `produceLeche` | Boolean | Línea de producción lechera | Booleano (true/false) |
+| `produceCereales`| Boolean | Línea de cultivo cerealero | Booleano (true/false) |
+| `produceFrutas` | Boolean | Línea de árboles frutales | Booleano (true/false) |
+| `produceVerduras`| Boolean | Línea de huerta y hortalizas | Booleano (true/false) |
+
+---
+
+## 🚀 Endpoints REST (API Fincas)
+
+| Método | Endpoint | Descripción | Acceso |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/fincas` | Registra una nueva finca | Público / PermitAll |
+| `GET` | `/api/fincas` | Lista todas las fincas registradas | Público / PermitAll |
+| `GET` | `/api/fincas/{id}` | Obtiene los detalles de una finca por ID | Público / PermitAll |
+| `PUT` | `/api/fincas/{id}` | Actualiza los datos de una finca existente | Público / PermitAll |
+| `DELETE`| `/api/fincas/{id}` | Elimina un predio del sistema | Público / PermitAll |
+
+Documentación interactiva disponible en **Swagger UI**:  
+👉 `http://localhost:8080/swagger-ui.html` (o `http://localhost:8080/swagger-ui/index.html`).
+
+---
+
+## ⚙️ Ejecución y Pruebas Locales
+
+### 1. Requisitos Previos
+- **Java 17** (Temurin JDK 17).
+- **Maven 3.9+** (o el wrapper `./mvnw`).
+- **MySQL / MariaDB** ejecutándose en el puerto 3306.
+
+### 2. Base de Datos
+Ejecutar los scripts de inicialización ubicados en `src/main/resources/`:
 ```bash
-./mvnw clean test
-./mvnw clean package
+# Crear base de datos y esquema
+mariadb -u Estudiante -pDeveloper < src/main/resources/schema.sql
+mariadb -u Estudiante -pDeveloper < src/main/resources/schema_fincas.sql
+
+# Cargar banco de datos con 7 fincas colombianas
+mariadb -u Estudiante -pDeveloper < src/main/resources/fincas_seed.sql
 ```
 
-En Windows se puede utilizar `mvnw.cmd`.
+### 3. Compilación y Ejecución
+```bash
+# Ejecutar suite de pruebas unitarias
+./mvnw clean test
 
-## Despliegue en Render
+# Iniciar la aplicación Spring Boot
+./mvnw spring-boot:run
+```
 
-El archivo `render.yaml` define el servicio web, el build con Docker y el despliegue
-automático de cada commit que llegue a la rama `main`.
-
-1. Crear un Blueprint en Render y seleccionar este repositorio.
-2. Completar en el panel los secretos marcados como requeridos: `DB_HOST`,
-   `DB_USERNAME`, `DB_PASSWORD`, `SMTP_USERNAME`, `SMTP_PASSWORD` y
-   `SMTP_FROM_ADDRESS`.
-3. Usar una instancia MySQL accesible desde Internet o desde la red privada de
-   Render y ejecutar `src/main/resources/schema.sql` una vez para crear el esquema.
-4. Desplegar el Blueprint. La API quedará disponible en el subdominio
-   `onrender.com` asignado por Render y Swagger UI en `/swagger-ui.html`.
-
-Las credenciales nunca deben guardarse en `application.properties` ni en
-`render.yaml`. Para desarrollo local, deben proporcionarse como variables de entorno.
+La aplicación arrancará por defecto en el puerto `8080`.
