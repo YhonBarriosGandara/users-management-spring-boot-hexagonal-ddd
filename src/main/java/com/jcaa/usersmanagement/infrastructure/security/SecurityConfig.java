@@ -17,6 +17,8 @@ public class SecurityConfig {
   private static final String AUTH_LOGIN_PATH = "/api/auth/login";
   private static final String USERS_PATH = "/api/users";
   private static final String USERS_DETAIL_PATH = "/api/users/**";
+  private static final String FINCAS_PATH = "/api/fincas";
+  private static final String FINCAS_DETAIL_PATH = "/api/fincas/**";
   private static final String[] OPEN_API_PATHS = {
     "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**"
   };
@@ -46,6 +48,8 @@ public class SecurityConfig {
                     .requestMatchers(AUTH_LOGIN_PATH)
                     .permitAll()
                     .requestMatchers(OPEN_API_PATHS)
+                    .permitAll()
+                    .requestMatchers(FINCAS_PATH, FINCAS_DETAIL_PATH)
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, USERS_PATH)
                     .permitAll()
