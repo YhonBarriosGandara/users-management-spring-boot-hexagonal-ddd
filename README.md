@@ -106,3 +106,53 @@ mariadb -u Estudiante -pDeveloper < src/main/resources/fincas_seed.sql
 ```
 
 La aplicación arrancará por defecto en el puerto `8080`.
+
+---
+
+## 🐳 Ejecución con Docker y Docker Compose (Paso 25)
+
+El proyecto incluye contenedores listos para producción que levantan tanto el motor MySQL 8.4 como la API Spring Boot con las semillas de fincas y usuarios precargadas:
+
+```bash
+# Construir y levantar servicios en segundo plano
+docker compose up -d
+
+# Verificar estado y salud
+docker compose ps
+```
+
+---
+
+## 📮 Pruebas con Colección de Postman (Paso 24)
+
+Se incluye una colección exportada en formato Postman v2.1 ubicada en `postman/users-management-spring-boot.postman_collection.json`.
+
+Cubre:
+* `GET /api/fincas` (Listar todas las fincas)
+* `GET /api/fincas/{id}` (Consultar finca por identificador)
+* `POST /api/fincas` (Crear finca con cálculo automático de $m^2$)
+* `PUT /api/fincas/{id}` (Actualizar finca)
+* `DELETE /api/fincas/{id}` (Eliminar finca)
+* `POST /api/auth/login` (Autenticación JWT)
+* `GET /v3/api-docs` y `/swagger-ui/index.html` (OpenAPI)
+
+---
+
+## ☁️ Base de Datos en la Nube y Despliegue en Render (Pasos 18 y 26)
+
+El microservicio está preparado para conectarse a **Aiven Cloud MySQL** compartiendo el mismo esquema de datos con el módulo PHP:
+* **Host:** `mysql-afcef2d-unicartagena-finca.c.aivencloud.com`
+* **Puerto:** `20622`
+* **Base de datos:** `defaultdb`
+
+### Despliegue en Render
+El archivo `render.yaml` contiene la especificación de infraestructura como código (IaC) para desplegar el contenedor Docker con Java 17 en Render asociando las variables de entorno de Aiven.
+
+---
+
+## 🚀 Integración Continua con GitHub Actions (Paso 27)
+
+El workflow configurado en `.github/workflows/ci.yml` ejecuta en cada commit:
+1. **Compilación y Pruebas Automatizadas:** Ejecución de `./mvnw clean test` validando los **198 tests unitarios** en runners de GitHub con Java 17 Temurin.
+2. **Build de Contenedor Docker:** Construcción multi-etapa de la imagen Docker de producción.
+
