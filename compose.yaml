@@ -11,6 +11,8 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
       - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+      - ./src/main/resources/schema_fincas.sql:/docker-entrypoint-initdb.d/002-schema_fincas.sql:ro
+      - ./src/main/resources/fincas_seed.sql:/docker-entrypoint-initdb.d/003-fincas_seed.sql:ro
     healthcheck:
       test:
         - CMD-SHELL
