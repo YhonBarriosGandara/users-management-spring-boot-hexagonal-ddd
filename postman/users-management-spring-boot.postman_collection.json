@@ -1,0 +1,230 @@
+{
+	"info": {
+		"_postman_id": "7c1b4d23-e29f-4318-b2a8-12e09b1f7a81",
+		"name": "CRUD Usuarios y Fincas - Spring Boot Hexagonal DDD",
+		"description": "Colección completa de pruebas Postman para users-management-spring-boot-hexagonal-ddd (Desarrollo Web Unidad 3 - CTEV Universidad de Cartagena). Cubre las operaciones REST de Fincas (Ejercicio N.º 4) y Usuarios.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Fincas (Ejercicio N.º 4)",
+			"item": [
+				{
+					"name": "1. Listar Fincas (List)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/fincas",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"fincas"
+							]
+						},
+						"description": "Obtiene la lista de todas las fincas colombianas registradas."
+					},
+					"response": []
+				},
+				{
+					"name": "2. Consultar Finca por ID (Read)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/fincas/FINCA-001",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"fincas",
+								"FINCA-001"
+							]
+						},
+						"description": "Obtiene el detalle completo de una finca por su identificador."
+					},
+					"response": []
+				},
+				{
+					"name": "3. Crear Finca (Create)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Hacienda San Agustín\",\n  \"numHectareas\": 180.50,\n  \"propietario\": \"Mauricio Gómez\",\n  \"capataz\": \"Ernesto Morales\",\n  \"pais\": \"Colombia\",\n  \"departamento\": \"Huila\",\n  \"ciudad\": \"Pitalito\",\n  \"produceLeche\": true,\n  \"produceCereales\": false,\n  \"produceFrutas\": true,\n  \"produceVerduras\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/fincas",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"fincas"
+							]
+						},
+						"description": "Crea una nueva finca con sus 12 atributos. El dominio calcula automáticamente los metros cuadrados (180.50 * 10000 = 1,805,000.00 m²)."
+					},
+					"response": []
+				},
+				{
+					"name": "4. Actualizar Finca (Update)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Hacienda San Agustín Renovada\",\n  \"numHectareas\": 200.00,\n  \"propietario\": \"Mauricio Gómez Jr.\",\n  \"capataz\": \"Ernesto Morales\",\n  \"pais\": \"Colombia\",\n  \"departamento\": \"Huila\",\n  \"ciudad\": \"Pitalito\",\n  \"produceLeche\": true,\n  \"produceCereales\": true,\n  \"produceFrutas\": true,\n  \"produceVerduras\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/fincas/FINCA-001",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"fincas",
+								"FINCA-001"
+							]
+						},
+						"description": "Actualiza la información del predio e invoca el comando UpdateFincaCommand recalculando superficie en el dominio."
+					},
+					"response": []
+				},
+				{
+					"name": "5. Eliminar Finca (Delete)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/fincas/FINCA-007",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"fincas",
+								"FINCA-007"
+							]
+						},
+						"description": "Elimina una finca del sistema y retorna código HTTP 204 No Content."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Documentación OpenAPI / Swagger",
+			"item": [
+				{
+					"name": "1. Especificación OpenAPI (JSON)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/v3/api-docs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v3",
+								"api-docs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Swagger UI Portal",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/swagger-ui/index.html",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"swagger-ui",
+								"index.html"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Autenticación",
+			"item": [
+				{
+					"name": "1. Iniciar Sesión (Login)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Admin1234!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
